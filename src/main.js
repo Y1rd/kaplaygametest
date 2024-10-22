@@ -16,6 +16,9 @@ scene("game", () => {
 		k.area(),
 		k.body()
 	])
+
+	// background
+	k.setBackground(52, 83, 207)
 	
 	// add platform
 	add([
@@ -25,6 +28,7 @@ scene("game", () => {
 		area(),
 		body({ isStatic: true }),
 		color(127, 200, 255),
+		layer(),
 	]);
 	
 	// Jumping
