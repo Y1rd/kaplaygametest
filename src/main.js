@@ -8,13 +8,26 @@ let score = 0;
 
 // Load the bean sprite and summon it in the game.
 scene("game", () => {
+	// Load bean guy
 	loadSprite("bean", "sprites/bean.png");
+
+	// Load... sonic?
+	loadSprite("player", "sprites/sonic1basicsprites.png", {
+		sliceX: 7, // how many sprites are in the X axis
+		sliceY: 5, // how many sprites are in the Y axis
+		anims: {
+			idle: { from: 0, to: 0, loop: false },
+			jump: { from: 19, to: 23, loop: true },
+		},
+	});
+
 	score = 0;
 	const bean = k.add([
 		k.pos(120, 80),
-		k.sprite("bean"),
+		k.sprite("player", {anim: "idle",}),
 		k.area(),
-		k.body()
+		k.body(),
+		k.scale(3),
 	])
 
 	// background
@@ -34,6 +47,7 @@ scene("game", () => {
 	// Jumping
 	onKeyPress("space", () => {
 		if (bean.isGrounded()) {
+			bean.play("jump");
 			bean.jump();
 		}
 	});
@@ -59,17 +73,17 @@ scene("game", () => {
 	//Score
 	// increment score every frame
 	const scoreLabel = add([text(score), pos(24, 24)]);
-	onUpdate(() => {
-    	score++;
-    	scoreLabel.text = score;
-	});
+	//onUpdate(() => {
+    //	score++;
+    //	scoreLabel.text = score;
+	//});
 
 	bean.onCollide("tree", () => {
 		addKaboom(bean.pos);
 		shake();
 		go("lose")
 	});
-	spawnTree()
+	//spawnTree()
 });
 
 scene("lose", () => {
