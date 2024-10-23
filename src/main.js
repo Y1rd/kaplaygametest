@@ -6,10 +6,10 @@ import "kaplay/global";
 const k = kaplay()
 let score = 0;
 
-// Load the bean sprite and summon it in the game.
+// Load the sonic sprite and summon it in the game.
 scene("game", () => {
-	// Load bean guy
-	loadSprite("bean", "sprites/bean.png");
+	// Load sonic guy
+	loadSprite("sonic", "sprites/sonic.png");
 
 	// Load... sonic?
 	loadSprite("player", "sprites/sonic1basicsprites.png", {
@@ -22,10 +22,10 @@ scene("game", () => {
 	});
 
 	score = 0;
-	const bean = k.add([
+	const sonic = k.add([
 		k.pos(120, 80),
 		k.sprite("player", {anim: "idle",}),
-		k.area(),
+		k.area({scale: 1}),
 		k.body(),
 		k.scale(3),
 	])
@@ -46,12 +46,19 @@ scene("game", () => {
 	
 	// Jumping
 	onKeyPress("space", () => {
-		if (bean.isGrounded()) {
-			bean.play("jump");
-			bean.jump();
+		if (sonic.isGrounded()) {
+			sonic.jump();
+			sonic.play("jump");
 		}
+		sonicGrounded()
 	});
 	
+	function sonicGrounded() {
+		sonic.onGround(() => {
+			sonic.play("idle");
+		});
+	}
+
 	// add tree
 	function spawnTree() {
 		add([
@@ -78,8 +85,8 @@ scene("game", () => {
     //	scoreLabel.text = score;
 	//});
 
-	bean.onCollide("tree", () => {
-		addKaboom(bean.pos);
+	sonic.onCollide("tree", () => {
+		addKaboom(sonic.pos);
 		shake();
 		go("lose")
 	});
@@ -87,9 +94,9 @@ scene("game", () => {
 });
 
 scene("lose", () => {
-	loadSprite("bean", "sprites/bean.png");
+	loadSprite("sonic", "sprites/sonic.png");
 	add([
-        sprite("bean"),
+        sprite("sonic"),
         pos(width() / 2, height() / 2 - 80),
         scale(2),
         anchor("center"),
