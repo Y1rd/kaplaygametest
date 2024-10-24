@@ -4,36 +4,43 @@ import "kaplay/global";
 
 // Variables
 const k = kaplay()
-let score = 0;
+let rings = 0;
+setGravity(2200);
 
-// Load the sonic sprite and summon it in the game.
+// Basic playground to test physics and all
 scene("game", () => {
-	// Load sonic guy
-	loadSprite("sonic", "sprites/sonic.png");
+	// Variables
+	rings = 0;
+	k.setBackground(52, 83, 207);
 
-	// Load... sonic?
-	loadSprite("player", "sprites/sonic1basicsprites.png", {
-		sliceX: 7, // how many sprites are in the X axis
-		sliceY: 5, // how many sprites are in the Y axis
+	// Sonic + Animations
+	k.loadSprite("player", "sprites/sonic1basicsprites.png", {
+		sliceX: 7,
+		sliceY: 5,
 		anims: {
 			idle: { from: 0, to: 0, loop: false },
-			jump: { from: 19, to: 23, loop: true },
+			roll: { from: 19, to: 23, loop: true },
+			jump: { from: 19, to: 23, loop: true, speed: 14},
+			boredstart: { from: 1, to: 2, loop: false},
+			boredloop: { from: 3, to: 4, loop: true},
+			lookup: { from: 5, to: 5, loop: false},
+			lookdown: { from: 6, to: 6, loop: false},
+			walk: { from: 7, to: 12, loop: true},
+			stop: { from: 13, to: 14, loop: true},
+			run: { from: 15, to: 18, loop: true}
 		},
 	});
 
-	score = 0;
+	// Player Object
 	const sonic = k.add([
 		k.pos(120, 80),
 		k.sprite("player", {anim: "idle",}),
 		k.area({scale: 1}),
-		k.body(),
+		k.body({jumpForce: 1200}),
 		k.scale(3),
 	])
-
-	// background
-	k.setBackground(52, 83, 207)
 	
-	// add platform
+	// Ground
 	add([
 		rect(width(), 48),
 		pos(0, height() - 48),
@@ -49,47 +56,53 @@ scene("game", () => {
 		if (sonic.isGrounded()) {
 			sonic.jump();
 			sonic.play("jump");
+			// Hitbox becomes smaller when in ball form, so I'm gonna do this for now
+			sonic.area.scale = vec2(0.93);
 		}
 		sonicGrounded()
 	});
-	
+
+	// Prevent the spinning animation from always happening
 	function sonicGrounded() {
 		sonic.onGround(() => {
 			sonic.play("idle");
+			sonic.area.scale = vec2(1);
 		});
 	}
 
+	const scoreLabel = add([text("Rings: " + rings), pos(24, 24)]);
+
+	// Old example code.
 	// add tree
-	function spawnTree() {
-		add([
-			rect(48, rand(24, 64)),
-			area(),
-			outline(4),
-			pos(width(), height() - 48),
-			anchor("botleft"),
-			color(255, 180, 255),
-			move(LEFT, 240),
-			"tree", // add a tag here
-			k.offscreen({ destroy: true }),
-		]);
-		wait(rand(0.5, 1.5), () => {
-			spawnTree();
-		});
-	}
-	
+	//function spawnTree() {
+	//	add([
+	//		rect(48, rand(24, 64)),
+	//		area(),
+	//		outline(4),
+	//		pos(width(), height() - 48),
+	//		anchor("botleft"),
+	//		color(255, 180, 255),
+	//		move(LEFT, 240),
+	//		"tree", // add a tag here
+	//		k.offscreen({ destroy: true }),
+	//	]);
+	//	wait(rand(0.5, 1.5), () => {
+	//		spawnTree();
+	//	});
+	//}
+
 	//Score
 	// increment score every frame
-	const scoreLabel = add([text(score), pos(24, 24)]);
 	//onUpdate(() => {
     //	score++;
     //	scoreLabel.text = score;
 	//});
 
-	sonic.onCollide("tree", () => {
-		addKaboom(sonic.pos);
-		shake();
-		go("lose")
-	});
+	//sonic.onCollide("tree", () => {
+	//	addKaboom(sonic.pos);
+	//	shake();
+	//	go("lose")
+	//});
 	//spawnTree()
 });
 
@@ -116,5 +129,3 @@ scene("lose", () => {
 });
 
 go("game");
-
-setGravity(1600);
