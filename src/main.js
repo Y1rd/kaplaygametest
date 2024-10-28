@@ -7,6 +7,19 @@ const k = kaplay()
 let rings = 0;
 setGravity(2200);
 
+// Woah
+// Add a new variable for ground speed
+let groundSpeed = 0;
+
+// Define a maximum speed for Sonic
+const topSpeed = 6; // or whatever value represents Sonic's top speed
+
+// Unused Variables
+// Need to be converted to the engine, these are the values from Sonic 1 (1991).
+const acceleration_speed = 0.046875 //(12 subpixels)
+const deceleration_speed = 0.5 // (128 subpixels)
+const friction_speed = 0.046875 // (12 subpixels)
+
 // Basic playground to test physics and all
 scene("game", () => {
 	// Variables
@@ -70,40 +83,61 @@ scene("game", () => {
 		});
 	}
 
+	// Finally time for some movement
+	onUpdate(() => {
+		// Apply friction when not pressing keys
+		if (!onKeyDown("left") && !onKeyDown("right")) {
+			if (groundSpeed > 0) {
+				groundSpeed -= Math.min(groundSpeed, friction_speed);
+				if (groundSpeed < 0) groundSpeed = 0;
+			} else if (groundSpeed < 0) {
+				groundSpeed += Math.min(-groundSpeed, friction_speed);
+				if (groundSpeed > 0) groundSpeed = 0;
+			}
+		}
+	
+		// Handle right movement
+		if (onKeyDown("right")) {
+			if (groundSpeed < 0) {
+				// Decelerate if changing direction
+				groundSpeed += deceleration_speed;
+				if (groundSpeed > 0) groundSpeed = 0.5; // Quirk
+			} else {
+				// Accelerate
+				groundSpeed += acceleration_speed;
+				if (groundSpeed > topSpeed) groundSpeed = topSpeed; // Limit max speed
+			}
+		}
+	
+		// Handle left movement
+		if (onKeyDown("left")) {
+			if (groundSpeed > 0) {
+				// Decelerate if changing direction
+				groundSpeed -= deceleration_speed;
+				if (groundSpeed < 0) groundSpeed = -0.5; // Quirk
+			} else {
+				// Accelerate
+				groundSpeed -= acceleration_speed;
+				if (groundSpeed < -topSpeed) groundSpeed = -topSpeed; // Limit max speed
+			}
+		}
+	
+		// Move Sonic based on ground speed
+		sonic.move(groundSpeed, 0);
+	});
+
+
+	
+
 	const scoreLabel = add([text("Rings: " + rings), pos(24, 24)]);
 
 	// Old example code.
-	// add tree
-	//function spawnTree() {
-	//	add([
-	//		rect(48, rand(24, 64)),
-	//		area(),
-	//		outline(4),
-	//		pos(width(), height() - 48),
-	//		anchor("botleft"),
-	//		color(255, 180, 255),
-	//		move(LEFT, 240),
-	//		"tree", // add a tag here
-	//		k.offscreen({ destroy: true }),
-	//	]);
-	//	wait(rand(0.5, 1.5), () => {
-	//		spawnTree();
-	//	});
-	//}
-
 	//Score
 	// increment score every frame
 	//onUpdate(() => {
     //	score++;
     //	scoreLabel.text = score;
 	//});
-
-	//sonic.onCollide("tree", () => {
-	//	addKaboom(sonic.pos);
-	//	shake();
-	//	go("lose")
-	//});
-	//spawnTree()
 });
 
 scene("lose", () => {
